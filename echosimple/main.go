@@ -6,7 +6,8 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 
-	_ "github.com/Bismvrckz/go-swagger/docs/echosimple"
+	// _ "github.com/Bismvrckz/go-swagger/docs/echosimple"
+	_ "github.com/swaggo/echo-swagger/example/docs"
 	// you need to update github.com/rizalgowandy/go-swag-sample with your own project path
 	echoSwagger "github.com/swaggo/echo-swagger"
 )
