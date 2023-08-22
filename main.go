@@ -6,9 +6,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 
-	// _ "github.com/rizalgowandy/go-swag-sample/docs/echosimple"
-	_ "github.com/swaggo/echo-swagger/example/docs"
-	// _ "github.com/Bismvrckz/go-swagger/docs"
+	_ "echosimple/docs"
 
 	echoSwagger "github.com/swaggo/echo-swagger"
 )
