@@ -7,9 +7,13 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 
 	// _ "github.com/rizalgowandy/go-swag-sample/docs/echosimple"
+	_ "github.com/swaggo/echo-swagger/example/docs"
+	// _ "github.com/Bismvrckz/go-swagger/docs"
+
 	echoSwagger "github.com/swaggo/echo-swagger"
-	// _ "github.com/swaggo/echo-swagger/example/docs"
 )
+
+// import "devGo/docs"
 
 // @title Echo Swagger Example API
 // @version 1.0

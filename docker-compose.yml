@@ -1,0 +1,13 @@
+version: "3"
+
+services:
+  go:
+    image: golang:latest
+    volumes:
+      - ./:/src
+    ports:
+      - 3000:3000
+    command: sh -c "cd /src && go run main.go"
+    restart: always
+
+volumes: golang-test
