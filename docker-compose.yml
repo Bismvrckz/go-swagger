@@ -4,7 +4,8 @@ services:
   go:
     image: golang:latest
     volumes:
-      - ./:/src
+      - ./src:/src
+      - ./go-build:/root/.cache/go-build
     ports:
       - 3000:3000
     command: sh -c "cd /src && go run main.go"
