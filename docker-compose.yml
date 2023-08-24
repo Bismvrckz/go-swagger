@@ -6,9 +6,11 @@ services:
     volumes:
       - ./src:/src
       - ./go-build:/root/.cache/go-build
+      - ./go-mod:/go/pkg/mod
     ports:
       - 3000:3000
-    command: sh -c "cd /src && go run main.go"
+    working_dir: /src
+    command: sh -c "go run main.go"
     restart: always
 
   postgres:
