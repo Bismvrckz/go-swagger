@@ -46,11 +46,22 @@ func main() {
 	password := "demo"
 
 	jwt, err := client.Login(ctx, clientID, clientSecret, realm, username, password)
-	fmt.Print(jwt)
+	// fmt.Print(jwt.AccessToken)
 
 	if err != nil {
 		panic("Something wrong with the credentials or url")
 	}
+
+	rptResult, err := client.RetrospectToken(ctx, jwt.AccessToken, clientID, clientSecret, realm)
+	if err != nil {
+		panic("Inspection failed:" + err.Error())
+	}
+
+	if !*rptResult.Active {
+		panic("Token is not active")
+	}
+
+	fmt.Print(rptResult)
 	// Middleware
 	// e.Use(middleware.Logger())
 	// e.Use(middleware.Recover())
