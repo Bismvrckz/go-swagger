@@ -1,17 +1,19 @@
 package main
 
 import (
-	// "github.com/labstack/echo/v4"
-	// "github.com/labstack/echo/v4/middleware"
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 
 	// _ "echosimple/docs"
-
 	"context"
-	"fmt"
+	"net/http"
+	"strings"
 
 	// echoSwagger "github.com/swaggo/echo-swagger"
 
 	"github.com/Nerzal/gocloak/v13"
+	oidc "github.com/coreos/go-oidc"
+	"golang.org/x/oauth2"
 )
 
 // import "devGo/docs"
@@ -32,22 +34,64 @@ import (
 // @BasePath /
 // @schemes http
 func main() {
-	client := gocloak.NewClient("http://localhost:8080")
 
 	// http://localhost:8080/realms/demo/.well-known/openid-configuration
-	// e := echo.New()
-	ctx := context.Background()
-	// token, err := client.LoginAdmin(ctx, "admin", "password", "demo")
+	e := echo.New()
 
+	// Middleware
+	e.Use(middleware.Logger())
+	e.Use(middleware.Recover())
+	e.Use(middleware.CORS())
+
+	// Routes
+	e.GET("/health", HealthCheck)
+	// e.GET("/swagger/*", echoSwagger.WrapHandler)
+	e.GET("/login", HandleKeycloakLogin)
+
+	// Start server
+	e.Logger.Fatal(e.Start(":3000"))
+}
+
+func HandleKeycloakLogin(c echo.Context, w http.ResponseWriter, r *http.Request) error {
+	// w := http.ResponseWriter
+	// r := *http.Request
 	clientID := "demo-client"
-	clientSecret := "PF9hF9fhQQGsZdY5FgAIMEuVg9tauumd"
+	clientSecret := "cbfd6e04-a51c-4982-a25b-7aaba4f30c81"
 	realm := "demo"
 	username := "demo"
 	password := "demo"
+	client := gocloak.NewClient("http://localhost:8080")
+	configURL := "http://localhost:8080/auth/realms/demo"
+	ctx := context.Background()
+	provider, err := oidc.NewProvider(ctx, configURL)
+
+	if err != nil {
+		panic(err)
+	}
+
+	redirectURL := "http://localhost:8181/demo/callback"
+	oauth2Config := oauth2.Config{
+		ClientID:     clientID,
+		ClientSecret: clientSecret,
+		RedirectURL:  redirectURL,
+		// Discovery returns the OAuth2 endpoints.
+		Endpoint: provider.Endpoint(),
+		// "openid" is a required scope for OpenID Connect flows.
+		Scopes: []string{oidc.ScopeOpenID, "profile", "email"},
+	}
+	// code := c.QueryParam("code")
+
+	state := "somestate"
+
+	oidcConfig := &oidc.Config{
+		ClientID: clientID,
+	}
+
+	verifier := provider.Verifier(oidcConfig)
+
+	// jwt, err := client.LoginClientTokenExchange(context.Background(), clientID, token.AccessToken, clientSecret, realm, "demo". "633f9c89-cd86-4ddc-b10c-8bcbef52cb4c")
 
 	jwt, err := client.Login(ctx, clientID, clientSecret, realm, username, password)
-	// fmt.Print(jwt.AccessToken)
-
 	if err != nil {
 		panic("Something wrong with the credentials or url")
 	}
@@ -61,92 +105,32 @@ func main() {
 		panic("Token is not active")
 	}
 
-	fmt.Print(rptResult)
-	// Middleware
-	// e.Use(middleware.Logger())
-	// e.Use(middleware.Recover())
-	// e.Use(middleware.CORS())
+	if err != nil {
+		return c.String(http.StatusInternalServerError, "Failed to exchange code for tokens")
+	}
 
-	// Routes
-	// e.GET("/health", HealthCheck)
-	// e.GET("/swagger/*", echoSwagger.WrapHandler)
-	// http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-	// 	rawAccessToken := r.Header.Get("Authorization")
-	// 	if rawAccessToken == "" {
-	// 		http.Redirect(w, r, oauth2Config.AuthCodeURL(state), http.StatusFound)
-	// 		return
-	// 	}
+	rawAccessToken := r.Header.Get("Authorization")
+	if rawAccessToken == "" {
+		http.Redirect(w, r, oauth2Config.AuthCodeURL(state), http.StatusFound)
+	}
 
-	// 	parts := strings.Split(rawAccessToken, " ")
-	// 	if len(parts) != 2 {
-	// 		w.WriteHeader(400)
-	// 		return
-	// 	}
-	// 	_, err := verifier.Verify(ctx, parts[1])
+	parts := strings.Split(rawAccessToken, " ")
+	if len(parts) != 2 {
+		w.WriteHeader(400)
+		return w.Write([]byte("hello world"))
+	}
+	a, err := verifier.Verify(ctx, parts[1])
 
-	// 	if err != nil {
-	// 		http.Redirect(w, r, oauth2Config.AuthCodeURL(state), http.StatusFound)
-	// 		return
-	// 	}
+	if err != nil {
+		http.Redirect(w, r, oauth2Config.AuthCodeURL(state), http.StatusFound)
+		return
+	}
 
-	// 	w.Write([]byte("hello world"))
-	// })
-
-	// http.HandleFunc("/demo/callback", func(w http.ResponseWriter, r *http.Request) {
-	// 	if r.URL.Query().Get("state") != state {
-	// 		http.Error(w, "state did not match", http.StatusBadRequest)
-	// 		return
-	// 	}
-
-	// 	oauth2Token, err := oauth2Config.Exchange(ctx, r.URL.Query().Get("code"))
-	// 	if err != nil {
-	// 		http.Error(w, "Failed to exchange token: "+err.Error(), http.StatusInternalServerError)
-	// 		return
-	// 	}
-	// 	rawIDToken, ok := oauth2Token.Extra("id_token").(string)
-	// 	if !ok {
-	// 		http.Error(w, "No id_token field in oauth2 token.", http.StatusInternalServerError)
-	// 		return
-	// 	}
-	// 	idToken, err := verifier.Verify(ctx, rawIDToken)
-	// 	if err != nil {
-	// 		http.Error(w, "Failed to verify ID Token: "+err.Error(), http.StatusInternalServerError)
-	// 		return
-	// 	}
-
-	// 	resp := struct {
-	// 		OAuth2Token   *oauth2.Token
-	// 		IDTokenClaims *json.RawMessage // ID Token payload is just JSON.
-	// 	}{oauth2Token, new(json.RawMessage)}
-
-	// 	if err := idToken.Claims(&resp.IDTokenClaims); err != nil {
-	// 		http.Error(w, err.Error(), http.StatusInternalServerError)
-	// 		return
-	// 	}
-	// 	data, err := json.MarshalIndent(resp, "", "    ")
-	// 	if err != nil {
-	// 		http.Error(w, err.Error(), http.StatusInternalServerError)
-	// 		return
-	// 	}
-	// 	w.Write(data)
-	// })
-
-	// log.Fatal(http.ListenAndServe("localhost:3000", nil))
-
-	// Start server
-	// e.Logger.Fatal(e.Start(":3000"))
+	return w.Write([]byte("hello world"))
 }
 
-// HealthCheck godoc
-// @Summary Show the status of server.
-// @Description get the status of server.
-// @Tags root
-// @Accept */*
-// @Produce json
-// @Success 200 {object} map[string]interface{}
-// @Router / [get]
-// func HealthCheck(c echo.Context) error {
-// 	return c.JSON(http.StatusOK, map[string]interface{}{
-// 		"data": "Server is up and running",
-// 	})
-// }
+func HealthCheck(c echo.Context) error {
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"data": "Server is up and running",
+	})
+}
