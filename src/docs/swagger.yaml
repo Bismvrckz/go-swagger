@@ -1,19 +1,12 @@
 basePath: /
 host: localhost:3000
 info:
-  contact:
-    email: support@swagger.io
-    name: API Support
-    url: http://www.swagger.io/support
-  description: This is a sample server server.
-  license:
-    name: Apache 2.0
-    url: http://www.apache.org/licenses/LICENSE-2.0.html
-  termsOfService: http://swagger.io/terms/
-  title: Echo Swagger Example API
+  contact: {}
+  description: Go-Cloak, Echo, Swagger
+  title: Echo Swagger Go-Cloak
   version: "1.0"
 paths:
-  /:
+  /health:
     get:
       consumes:
       - '*/*'
@@ -27,6 +20,35 @@ paths:
             additionalProperties: true
             type: object
       summary: Show the status of server.
+      tags:
+      - root
+  /login:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Login Go-Cloak.
+      parameters:
+      - description: Username
+        in: formData
+        name: user
+        required: true
+        type: string
+      - description: Password
+        in: formData
+        name: pass
+        required: true
+        type: string
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - ApiKeyAuth: []
+      summary: Login Go-Cloak.
       tags:
       - root
 schemes:

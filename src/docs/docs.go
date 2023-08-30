@@ -10,22 +10,13 @@ const docTemplate = `{
     "info": {
         "description": "{{escape .Description}}",
         "title": "{{.Title}}",
-        "termsOfService": "http://swagger.io/terms/",
-        "contact": {
-            "name": "API Support",
-            "url": "http://www.swagger.io/support",
-            "email": "support@swagger.io"
-        },
-        "license": {
-            "name": "Apache 2.0",
-            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
-        },
+        "contact": {},
         "version": "{{.Version}}"
     },
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/": {
+        "/health": {
             "get": {
                 "description": "get the status of server.",
                 "consumes": [
@@ -48,6 +39,50 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/login": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Login Go-Cloak.",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "root"
+                ],
+                "summary": "Login Go-Cloak.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Username",
+                        "name": "user",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Password",
+                        "name": "pass",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Authorization",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
         }
     }
 }`
@@ -58,8 +93,8 @@ var SwaggerInfo = &swag.Spec{
 	Host:             "localhost:3000",
 	BasePath:         "/",
 	Schemes:          []string{"http"},
-	Title:            "Echo Swagger Example API",
-	Description:      "This is a sample server server.",
+	Title:            "Echo Swagger Go-Cloak",
+	Description:      "Go-Cloak, Echo, Swagger",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",
