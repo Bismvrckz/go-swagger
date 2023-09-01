@@ -18,7 +18,7 @@ import (
 // @title Echo Swagger Go-Cloak
 // @version 1.0
 // @description Go-Cloak, Echo, Swagger
-
+// @tokenUrl http://localhost:8080/auth/realms/&lt;demo-client&gt;/protocol/openid-connect/token
 // @host localhost:3000
 // @BasePath /
 // @schemes http
