@@ -7,6 +7,7 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 
 	_ "echosimple/docs"
+	_ "echosimple/sign"
 
 	"net/http"
 
@@ -18,7 +19,14 @@ import (
 // @title Echo Swagger Go-Cloak
 // @version 1.0
 // @description Go-Cloak, Echo, Swagger
-// @tokenUrl http://localhost:8080/auth/realms/&lt;demo-client&gt;/protocol/openid-connect/token
+
+// @securityDefinitions.basic BasicAuth
+
+// @securitydefinitions.oauth2.application OAuth2Application
+// @tokenUrl http://localhost:8080/realms/demo/protocol/openid-connect/token
+// @scope.write Grants write access
+// @scope.admin Grants read and write access to administrative information
+
 // @host localhost:3000
 // @BasePath /
 // @schemes http
@@ -36,6 +44,8 @@ func main() {
 	e.GET("/swagger/*", echoSwagger.WrapHandler)
 	e.GET("/health", HealthCheck)
 	e.POST("/login", Login)
+
+	// sign.RSA_sign()
 
 	e.Logger.Fatal(e.Start(":3000"))
 }

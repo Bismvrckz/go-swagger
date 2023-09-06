@@ -4,6 +4,7 @@ go 1.21.0
 
 require (
 	github.com/Nerzal/gocloak/v13 v13.8.0
+	github.com/golang-jwt/jwt/v5 v5.0.0
 	github.com/labstack/echo/v4 v4.11.1
 	github.com/swaggo/echo-swagger v1.4.0
 	github.com/swaggo/swag v1.16.1

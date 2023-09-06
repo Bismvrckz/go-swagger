@@ -53,4 +53,14 @@ paths:
       - root
 schemes:
 - http
+securityDefinitions:
+  BasicAuth:
+    type: basic
+  OAuth2Application:
+    flow: application
+    scopes:
+      admin: ' Grants read and write access to administrative information'
+      write: ' Grants write access'
+    tokenUrl: http://localhost:8080/realms/demo/protocol/openid-connect/token
+    type: oauth2
 swagger: "2.0"
